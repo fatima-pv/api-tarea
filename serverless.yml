@@ -1,0 +1,61 @@
+org: fatimapv
+service: api-s3
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: python3.13
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  memorySize: 256
+  timeout: 20
+  iam:
+    role: arn:aws:iam::076456812464:role/LabRole
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+package:
+  individually: true
+  patterns:
+    - "!**/*"
+    - "lista_buckets.py"
+    - "lista_objetos_bucket.py"
+    - "create_bucket.py"
+    - "create_prefix.py"
+    - "upload_object.py"
+
+functions:
+  listaBuckets:
+    handler: lista_buckets.lambda_handler
+    events:
+      - httpApi:
+          method: GET
+          path: /s3/lista-buckets
+
+  listaObjetosBucket:
+    handler: lista_objetos_bucket.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /s3/bucket/lista-objetos
+
+  createBucket:
+    handler: create_bucket.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /s3/bucket/create
+
+  createPrefix:
+    handler: create_prefix.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /s3/prefix/create
+
+  uploadObject:
+    handler: upload_object.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /s3/object/upload
